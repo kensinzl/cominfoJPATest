@@ -1,0 +1,15 @@
+# Compile file ignored
+/target
+
+# Intellij local files
+/.idea
+
+# Mount Postgres docker files, all files among mounted, Postgres_Data folder
+/Docker/mounted
+/Docker/Postgres_Data
+
+# OS generated files
+.DS_Store
+
+# Default file
+cominfoJPATest.iml

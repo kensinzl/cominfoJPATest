@@ -1,0 +1,11 @@
+version: "3.4"
+services:
+  mydb:
+    build: .
+    container_name: postgres_db
+    restart: always
+    ports:
+      - 5432:5432
+    volumes: 
+      - ./Postgres_Data:/var/lib/postgresql/data
+      - ./mounted:/var/lib/postgresql/mounted
