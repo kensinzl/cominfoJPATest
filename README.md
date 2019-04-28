@@ -19,3 +19,4 @@
 5. How to push the existing project into Github
  -> enter the project and then git init
  -> GitKraken open the local project
+ -> Get github project path into URL pull and get. Click Connect

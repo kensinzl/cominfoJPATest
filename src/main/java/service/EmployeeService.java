@@ -2,16 +2,42 @@ package service;
 
 import dto.EmployeeDto;
 import entity.Employee;
-import mapper.MovieMapper;
+import mapper.EmployeeMapper;
 import org.mapstruct.factory.Mappers;
+import provider.EmployeeProvider;
 
 public class EmployeeService {
 
     // FIXME: later change into Spring DI
-    private MovieMapper movieMapper = Mappers.getMapper( MovieMapper.class );
+    private EmployeeMapper employeeMapper = Mappers.getMapper( EmployeeMapper.class );
 
-    public void saveEmployee(EmployeeDto dto) {
+    // FIXME: later change into Spring DI
+    private EmployeeProvider employeeProvider = new EmployeeProvider ();
 
 
+    public EmployeeDto saveEmployee(EmployeeDto dto) {
+        Employee employee = employeeMapper.employeeDtoToEntity (dto, new Employee ());
+        return employeeMapper.employeeToDto (employeeProvider.saveEmployee (employee), new EmployeeDto ());
+    }
+
+    public void deleteEmployee(Long id) {
+        employeeProvider.deleteEmployee (id);
+    }
+
+    public void updateEmployee(EmployeeDto newDto) {
+        Employee employee = employeeMapper.employeeDtoToEntity (newDto, new Employee ());
+        employeeProvider.updateEmployee (employee);
+    }
+
+    public Employee findEmployeeById(Long id) {
+        return employeeProvider.findEmployeeById (id);
+    }
+
+    public Employee findEmployeeByIdWithJPQL(Long id) {
+        return employeeProvider.findEmployeeByIdWithJPQL (id);
+    }
+
+    public void detachEmployeeById(Long id) {
+        employeeProvider.detachEmployeeById (id);
     }
 }

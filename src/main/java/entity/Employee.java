@@ -1,5 +1,7 @@
 package entity;
 
+import common.Gender;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -18,8 +20,9 @@ public class Employee {
     @Column(name = "employee_name")
     private String employeeName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private String gender;
+    private Gender gender;
 
     @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Email> emails;
@@ -40,11 +43,11 @@ public class Employee {
         this.employeeName = employeeName;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 

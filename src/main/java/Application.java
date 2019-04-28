@@ -2,16 +2,14 @@ import common.Gender;
 import dto.EmailDto;
 import dto.EmployeeDto;
 import dto.MovieDto;
-import entity.Email;
+import entity.Employee;
 import entity.Movie;
 import service.EmployeeService;
 import service.MovieService;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 public class Application {
@@ -104,56 +102,50 @@ public class Application {
 
 
         /**
+         * Cascade Action(Persist)
+         * bidirectional Dto(current case)
+         * Employee <=> Email, Employee can get the relative Email, and vice versa
          *
+         * unidirectional Dto
+         * Employee => Email, Employee can get the relative Email, but Email can not back to Employee
          */
-//        EmployeeDto employeeDto = new EmployeeDto ();
-//        employeeDto.setGender (Gender.MAILE.toString ());
-//        employeeDto.setEmployeeName ("Kensin");
-//
-//        EmailDto gmailEmailDto = new EmailDto ();
-//        gmailEmailDto.setEmailAddress ("zlchldjyy@gmail.com");
-//        gmailEmailDto.setEmployeeDto (employeeDto);
-//
-//        EmailDto qqEmailDto = new EmailDto ();
-//        qqEmailDto.setEmailAddress ("851561339@qq.com");
-//        qqEmailDto.setEmployeeDto (employeeDto);
-//
-//        EmailDto yahooEmailDto = new EmailDto ();
-//        yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
-//        yahooEmailDto.setEmployeeDto (employeeDto);
-//
-//        Set emailSet = new HashSet ();
-//        emailSet.addAll (Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto));
-//        employeeDto.setEmailsDto (emailSet);
+        // updating the associations on both entities is an error-prone task
+        // EmployeeDto employeeDto = createUniEmployeeDtoAndEmailDto();
+        EmployeeDto employeeDto = createBiEmployeeDtoAndEmailDtoOnEmployee ();
+        EmployeeDto savedEmployeeDto = employeeService.saveEmployee (employeeDto);
+
+        /**
+         * Employee FetchType.LAZY
+         */
+        System.out.println ("++++++++++++++++++++++++++++++");
+        employeeService.detachEmployeeById (5L);
+        Employee employee = employeeService.findEmployeeById (5L);
+        //Employee employeeWithJPQL = employeeService.findEmployeeByIdWithJPQL(5L);
+
+        System.out.println ("++++++ employee: " + employee);
+        //System.out.println ("++++++ employee.emails: " + employee.getEmails ());
+
+        //System.out.println ("++++++ employeeWithJPQL: " + employeeWithJPQL);
+        //System.out.println ("++++++ employeeWithJPQL.emails: " + employeeWithJPQL.getEmails ());
+
+        /**
+         * Cascade Action(Update Owning Table)
+         */
+        savedEmployeeDto.getEmailsDto ().stream ().forEach (emailDto -> {
+            emailDto.setEmailAddress (emailDto.getEmailAddress () + "_*");
+        });
+        employeeService.updateEmployee (savedEmployeeDto);
 
 
-        EmployeeDto employeeDto = new EmployeeDto ();
-        employeeDto.setGender (Gender.MAILE.toString ());
-        employeeDto.setEmployeeName ("Kensin");
-
-        EmailDto gmailEmailDto = new EmailDto ();
-        gmailEmailDto.setEmailAddress ("zlchldjyy@gmail.com");
-        gmailEmailDto.setEmployeeDto (employeeDto);
-
-        EmailDto qqEmailDto = new EmailDto ();
-        qqEmailDto.setEmailAddress ("851561339@qq.com");
-        qqEmailDto.setEmployeeDto (employeeDto);
-
-        EmailDto yahooEmailDto = new EmailDto ();
-        yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
-        yahooEmailDto.setEmployeeDto (employeeDto);
-
-        Set emailDtoSet = new HashSet<EmailDto> ();
-        emailDtoSet.addAll (Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto));
-        //employeeDto.setEmailsDto (emailSet);
+        /**
+         * Cascade Action(Delete Inverse Table)
+         */
+        employeeService.deleteEmployee (5L);
 
 
-//        emailDtoSet.stream ().map (emailDto -> {
-//            employeeDto.addEmailDto (emailDto)
-//        });
 
-        List<Integer> numbers = Arrays.asList(3, 2, 2, 3, 7, 3, 5);
-        numbers.stream().map( i -> i*i).distinct();
+
+
 
 
 
@@ -261,5 +253,51 @@ public class Application {
         movieDto.setMovieName(movieName);
         movieDto.setReleaseYear(releaseYear);
         return movieDto;
+    }
+
+
+    public static EmployeeDto createUniEmployeeDtoAndEmailDto() {
+        EmployeeDto employeeDto = new EmployeeDto ();
+        employeeDto.setGender (Gender.MAILE.toString ());
+        employeeDto.setEmployeeName ("Kensin");
+
+        EmailDto gmailEmailDto = new EmailDto ();
+        gmailEmailDto.setEmailAddress ("zlchldjyy@gmail.com");
+        gmailEmailDto.setEmployeeDto (employeeDto);
+
+        EmailDto qqEmailDto = new EmailDto ();
+        qqEmailDto.setEmailAddress ("851561339@qq.com");
+        qqEmailDto.setEmployeeDto (employeeDto);
+
+        EmailDto yahooEmailDto = new EmailDto ();
+        yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
+        yahooEmailDto.setEmployeeDto (employeeDto);
+
+        Set emailDtoSet = new HashSet ();
+        emailDtoSet.addAll (Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto));
+
+        employeeDto.setEmailsDto (emailDtoSet);
+
+        return employeeDto;
+    }
+
+    public static EmployeeDto createBiEmployeeDtoAndEmailDtoOnEmployee() {
+        EmployeeDto employeeDto = new EmployeeDto ();
+        employeeDto.setGender (Gender.MAILE.toString ());
+        employeeDto.setEmployeeName ("Kensin");
+
+        EmailDto gmailEmailDto = new EmailDto ();
+        gmailEmailDto.setEmailAddress ("zlchldjyy@gmail.com");
+
+        EmailDto qqEmailDto = new EmailDto ();
+        qqEmailDto.setEmailAddress ("851561339@qq.com");
+
+        EmailDto yahooEmailDto = new EmailDto ();
+        yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
+
+        Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto)
+                .stream ().forEach (emailDto -> employeeDto.addEmailDto ((EmailDto)emailDto));
+
+        return employeeDto;
     }
 }
