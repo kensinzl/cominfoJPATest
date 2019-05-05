@@ -15,9 +15,14 @@ public class EmployeeService {
     private EmployeeProvider employeeProvider = new EmployeeProvider ();
 
 
-    public EmployeeDto saveEmployee(EmployeeDto dto) {
+    public void saveEmployee(EmployeeDto dto) {
         Employee employee = employeeMapper.employeeDtoToEntity (dto, new Employee ());
-        return employeeMapper.employeeToDto (employeeProvider.saveEmployee (employee), new EmployeeDto ());
+        employeeProvider.saveEmployee (employee);
+    }
+
+    public EmployeeDto saveEmployeeReturnAttachedEmployeeDto(EmployeeDto dto) {
+        Employee employee = employeeMapper.employeeDtoToEntity (dto, new Employee ());
+        return employeeMapper.employeeToDto (employeeProvider.saveEmployeeReturnAttachedEmployee (employee), new EmployeeDto ());
     }
 
     public void deleteEmployee(Long id) {
@@ -39,5 +44,9 @@ public class EmployeeService {
 
     public void detachEmployeeById(Long id) {
         employeeProvider.detachEmployeeById (id);
+    }
+
+    public Employee detachEmployeeByIdThenReturnDetachedEmployee(Long id) {
+        return employeeProvider.detachEmployeeByIdThenReturnDetachedEmployee (id);
     }
 }

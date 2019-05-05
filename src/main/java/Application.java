@@ -8,8 +8,6 @@ import service.EmployeeService;
 import service.MovieService;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 
 public class Application {
@@ -19,86 +17,86 @@ public class Application {
         MovieService movieService = new MovieService();
         EmployeeService employeeService = new EmployeeService();
 
-        /**
-         * Persist Action(new instance)
-         *
-         * 1. before persist, new movie instance is not contained by persistence context
-         * 2. after persist, new movie instance is contained by persistence context
-         */
-        MovieDto movieDto = createMovieDto ("Three Kings", 2019, "JP");
-        movieService.saveMovie (movieDto);
-        System.out.println ("------ persist one movie instance into persistence context ------ ");
-        System.out.println ("------ insert one movie into database ------ ");
-
-
-        // detach the instance from persistence context
-        movieService.detachMovieById (1L);
-        System.out.println ("------ detach this instance from persistence context ------ ");
-
-        System.out.println ("------ switch into SQL query to fetch because of detach ------ ");
-        Movie movieEntityFromDB = movieService.findMovieById (1L);
-        System.out.println ("------ fetch SQL End ------ ");
-        System.out.println("------ After find, movieEntityFromDB, em "
-                + (movieService.isContain (movieEntityFromDB) == true ? "contains " : "not contain ")
-                + movieEntityFromDB);
-
-
-        Movie movieEntityFromCache = movieService.findMovieById (1L);
-        System.out.println ("------ find again, movieEntityFromCache is the cache of movieEntityFromDB among the persistence context, "
-                        + movieEntityFromCache + "No SQL Start ------ ");
-
-        movieService.detachMovieById (1L);
-        System.out.println ("------ detach again ------ ");
-
-        System.out.println("------ After find and then detach, movieEntityFromCache, em "
-                + (movieService.isContain (movieEntityFromCache) == true ? "contains " : "not contain ")
-                + movieEntityFromCache);
-        System.out.println("------ After find and then detach, movieEntityFromDB, em "
-                + (movieService.isContain (movieEntityFromDB) == true ? "contains " : "not contain ")
-                + movieEntityFromDB);
-
-
-        /**
-         * Merge Action(return value)
-         *
-         * 1. merge(new non attach instance), insert it for database and return new attach instance
-         * 2. merge(detach instance), update the changes and return new attach instance
-         * 3. merge(attach instance), upate the changes and return the cache instance
-         * 4. merge(new instance but attach and exist in persistence context), update and return the cache instance
-         *
-         */
-        MovieDto dto = createMovieDto ("new non attach instance", 2019, "EN");
-        Movie newAttachInstance = movieService.mergeNewNonAttachIns (dto);
-
-        Movie detachToAttachByMerge = movieService.mergeDetachIns (1L);
-
-        Movie attachAgainByMerge = movieService.mergeAttachIns (1L);
-
-        dto.setId (1L);
-        dto.setLanguage (dto.getLanguage () + "_new ins but exist");
-        Movie newInsAttachExistInPC = movieService.mergeNewInsButExistedInPC (dto);
-
-
-        System.out.println("************ ");
-
-        // use find or merge to update.
-        /**
-         * Update Action
-         * 1. find
-         * 2. merge
-         * 3. find, then change the attribute and merge(better)
-         */
-        MovieDto updatingMovieDtoByFind = createMovieDto ("updating movie dto by find", 2019, "CN");
-        movieService.mergeNewNonAttachIns (updatingMovieDtoByFind);
-        updatingMovieDtoByFind.setId (3L);
-        movieService.updateMovieByFind (updatingMovieDtoByFind);
-
-        MovieDto updatingMovieDtoMerge = createMovieDto ("updating movie dto by merge", 2019, "CS");
-        movieService.mergeNewNonAttachIns (updatingMovieDtoMerge);
-        updatingMovieDtoMerge.setId (4L);
-        movieService.updateMovieByMerge (updatingMovieDtoMerge);
-
-        movieService.updateByFindMerge(4L);
+//        /**
+//         * Persist Action(new instance)
+//         *
+//         * 1. before persist, new movie instance is not contained by persistence context
+//         * 2. after persist, new movie instance is contained by persistence context
+//         */
+//        MovieDto movieDto = createMovieDto ("Three Kings", 2019, "JP");
+//        movieService.saveMovie (movieDto);
+//        System.out.println ("------ persist one movie instance into persistence context ------ ");
+//        System.out.println ("------ insert one movie into database ------ ");
+//
+//
+//        // detach the instance from persistence context
+//        movieService.detachMovieById (1L);
+//        System.out.println ("------ detach this instance from persistence context ------ ");
+//
+//        System.out.println ("------ switch into SQL query to fetch because of detach ------ ");
+//        Movie movieEntityFromDB = movieService.findMovieById (1L);
+//        System.out.println ("------ fetch SQL End ------ ");
+//        System.out.println("------ After find, movieEntityFromDB, em "
+//                + (movieService.isContain (movieEntityFromDB) == true ? "contains " : "not contain ")
+//                + movieEntityFromDB);
+//
+//
+//        Movie movieEntityFromCache = movieService.findMovieById (1L);
+//        System.out.println ("------ find again, movieEntityFromCache is the cache of movieEntityFromDB among the persistence context, "
+//                        + movieEntityFromCache + "No SQL Start ------ ");
+//
+//        movieService.detachMovieById (1L);
+//        System.out.println ("------ detach again ------ ");
+//
+//        System.out.println("------ After find and then detach, movieEntityFromCache, em "
+//                + (movieService.isContain (movieEntityFromCache) == true ? "contains " : "not contain ")
+//                + movieEntityFromCache);
+//        System.out.println("------ After find and then detach, movieEntityFromDB, em "
+//                + (movieService.isContain (movieEntityFromDB) == true ? "contains " : "not contain ")
+//                + movieEntityFromDB);
+//
+//
+//        /**
+//         * Merge Action(return value)
+//         *
+//         * 1. merge(new non attach instance), insert it for database and return new attach instance
+//         * 2. merge(detach instance), update the changes and return new attach instance
+//         * 3. merge(attach instance), upate the changes and return the cache instance
+//         * 4. merge(new instance but attach and exist in persistence context), update and return the cache instance
+//         *
+//         */
+//        MovieDto dto = createMovieDto ("new non attach instance", 2019, "EN");
+//        Movie newAttachInstance = movieService.mergeNewNonAttachIns (dto);
+//
+//        Movie detachToAttachByMerge = movieService.mergeDetachIns (1L);
+//
+//        Movie attachAgainByMerge = movieService.mergeAttachIns (1L);
+//
+//        dto.setId (1L);
+//        dto.setLanguage (dto.getLanguage () + "_new ins but exist");
+//        Movie newInsAttachExistInPC = movieService.mergeNewInsButExistedInPC (dto);
+//
+//
+//        System.out.println("************ ");
+//
+//        // use find or merge to update.
+//        /**
+//         * Update Action
+//         * 1. find
+//         * 2. merge
+//         * 3. find, then change the attribute and merge(better)
+//         */
+//        MovieDto updatingMovieDtoByFind = createMovieDto ("updating movie dto by find", 2019, "CN");
+//        movieService.mergeNewNonAttachIns (updatingMovieDtoByFind);
+//        updatingMovieDtoByFind.setId (3L);
+//        movieService.updateMovieByFind (updatingMovieDtoByFind);
+//
+//        MovieDto updatingMovieDtoMerge = createMovieDto ("updating movie dto by merge", 2019, "CS");
+//        movieService.mergeNewNonAttachIns (updatingMovieDtoMerge);
+//        updatingMovieDtoMerge.setId (4L);
+//        movieService.updateMovieByMerge (updatingMovieDtoMerge);
+//
+//        movieService.updateByFindMerge(4L);
 
 
         /**
@@ -108,37 +106,99 @@ public class Application {
          *
          * unidirectional Dto
          * Employee => Email, Employee can get the relative Email, but Email can not back to Employee
+         *
+         *
+         * The following method: Updating the associations on both entities is an error-prone task.
+         * https://thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
+         *
+         * EmployeeDto employeeDto = createUniEmployeeDtoAndEmailDto();
+         *
+         * public static EmployeeDto createUniEmployeeDtoAndEmailDto() {
+         *		EmployeeDto employeeDto = new EmployeeDto ();
+         *		employeeDto.setGender (Gender.MAILE.toString ());
+         *		employeeDto.setEmployeeName ("Kensin");
+         *
+         *		EmailDto gmailEmailDto = new EmailDto ();
+         *		gmailEmailDto.setEmailAddress ("zlchldjyy@gmail.com");
+         *		gmailEmailDto.setEmployeeDto (employeeDto);
+         *
+         *		EmailDto qqEmailDto = new EmailDto ();
+         *		qqEmailDto.setEmailAddress ("851561339@qq.com");
+         *		qqEmailDto.setEmployeeDto (employeeDto);
+         *
+         *		EmailDto yahooEmailDto = new EmailDto ();
+         *		yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
+         *		yahooEmailDto.setEmployeeDto (employeeDto);
+         *
+         *		Set emailDtoSet = new HashSet ();
+         *		emailDtoSet.addAll (Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto));
+         *
+         *		employeeDto.setEmailsDto (emailDtoSet);
+         *
+         *		return employeeDto;
+         *		}
          */
-        // updating the associations on both entities is an error-prone task
-        // EmployeeDto employeeDto = createUniEmployeeDtoAndEmailDto();
-        EmployeeDto employeeDto = createBiEmployeeDtoAndEmailDtoOnEmployee ();
-        EmployeeDto savedEmployeeDto = employeeService.saveEmployee (employeeDto);
+        EmployeeDto employeeDto = createBiAssociationBetweenEmployeeDtoAndEmailDto ();
+        employeeService.saveEmployee (employeeDto);
 
         /**
-         * Employee FetchType.LAZY
+         * Employee FetchType.LAZY.
          */
-        System.out.println ("++++++++++++++++++++++++++++++");
-        employeeService.detachEmployeeById (5L);
-        Employee employee = employeeService.findEmployeeById (5L);
-        //Employee employeeWithJPQL = employeeService.findEmployeeByIdWithJPQL(5L);
+        Employee employeeFromPSWithEmail = employeeService.detachEmployeeByIdThenReturnDetachedEmployee (1L);
+        System.out.println ("  >>>>>>>>> this employee from persistence context which was saved by employeeService.saveEmployee method, so with email. ");
+        employeeFromPSWithEmail.getEmails ().stream ()
+                .forEach (email -> System.out.println ("    emails: " + email.getEmailAddress ()));
 
-        System.out.println ("++++++ employee: " + employee);
-        //System.out.println ("++++++ employee.emails: " + employee.getEmails ());
+        System.out.println ("  >>>>>>>>> this employee is already not in the persistence context which has been detached. ");
+        System.out.println ("    >>>>>>>>> if using em.find and detach again, the lazy proxy will be cutted from DB. " +
+                "Proxy session close issue when fetching email. ");
+        Employee employeeFromDBWithoutEmail = employeeService.detachEmployeeByIdThenReturnDetachedEmployee (1L);
+        try {
+            employeeFromDBWithoutEmail.getEmails ().stream ()
+                    .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
+        }catch (Exception ex) {
+            System.out.println ("    ---- Exception: " + ex.getMessage ());
+        }
 
-        //System.out.println ("++++++ employeeWithJPQL: " + employeeWithJPQL);
-        //System.out.println ("++++++ employeeWithJPQL.emails: " + employeeWithJPQL.getEmails ());
+        System.out.println ("    >>>>>>>>> if using em.find, it will fetch from DB invoking the lazy mode. Only fetch email when needed. ");
+        Employee employeeFromDB = employeeService.findEmployeeById (1L);
+        employeeFromDB.getEmails ().stream ()
+                .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
+
+        System.out.println ("    >>>>>>>>> if use JPQL left join fetch, directly get the emails  ");
+        Employee employeeWithEmailByFetch = employeeService.findEmployeeByIdWithJPQL (1L);
+        employeeWithEmailByFetch.getEmails ().stream ()
+                .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
 
         /**
          * Cascade Action(Update Owning Table)
          */
-        savedEmployeeDto.getEmailsDto ().stream ().forEach (emailDto -> {
-            emailDto.setEmailAddress (emailDto.getEmailAddress () + "_*");
-        });
+        EmployeeDto savedEmployeeDto = employeeService.saveEmployeeReturnAttachedEmployeeDto (employeeDto);
+        savedEmployeeDto.setEmployeeName ("Naruto");
+        savedEmployeeDto.getEmailsDto ().stream ().forEach (emailDto ->
+            emailDto.setEmailAddress (emailDto.getEmailAddress () + "_*")
+        );
         employeeService.updateEmployee (savedEmployeeDto);
 
 
         /**
          * Cascade Action(Delete Inverse Table)
+         *
+         *  1. em.remove
+         *  2. JPQL
+         *
+         *  ->  Three common method to delete
+         *          https://www.codejava.net/frameworks/hibernate/hibernate-basics-3-ways-to-delete-an-entity-from-the-datastore
+         *  ->  @ManyToMany should take care to use em.remove
+         *          https://thoughts-on-java.org/avoid-cascadetype-delete-many-assocations/
+         *
+         *      Query query1 = em.createQuery("delete Email e where e.id > :id");
+         *      query1.setParameter("id", 5L);
+         *      query1.executeUpdate();
+         *
+         *      Query query2 = em.createQuery("delete Employee e where e.id=:id");
+         *      query2.setParameter("id", id);
+         *      query2.executeUpdate();
          */
         employeeService.deleteEmployee (5L);
 
@@ -255,33 +315,7 @@ public class Application {
         return movieDto;
     }
 
-
-    public static EmployeeDto createUniEmployeeDtoAndEmailDto() {
-        EmployeeDto employeeDto = new EmployeeDto ();
-        employeeDto.setGender (Gender.MAILE.toString ());
-        employeeDto.setEmployeeName ("Kensin");
-
-        EmailDto gmailEmailDto = new EmailDto ();
-        gmailEmailDto.setEmailAddress ("zlchldjyy@gmail.com");
-        gmailEmailDto.setEmployeeDto (employeeDto);
-
-        EmailDto qqEmailDto = new EmailDto ();
-        qqEmailDto.setEmailAddress ("851561339@qq.com");
-        qqEmailDto.setEmployeeDto (employeeDto);
-
-        EmailDto yahooEmailDto = new EmailDto ();
-        yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
-        yahooEmailDto.setEmployeeDto (employeeDto);
-
-        Set emailDtoSet = new HashSet ();
-        emailDtoSet.addAll (Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto));
-
-        employeeDto.setEmailsDto (emailDtoSet);
-
-        return employeeDto;
-    }
-
-    public static EmployeeDto createBiEmployeeDtoAndEmailDtoOnEmployee() {
+    public static EmployeeDto createBiAssociationBetweenEmployeeDtoAndEmailDto() {
         EmployeeDto employeeDto = new EmployeeDto ();
         employeeDto.setGender (Gender.MAILE.toString ());
         employeeDto.setEmployeeName ("Kensin");
@@ -296,7 +330,7 @@ public class Application {
         yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
 
         Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto)
-                .stream ().forEach (emailDto -> employeeDto.addEmailDto ((EmailDto)emailDto));
+                .stream ().forEach (emailDto -> employeeDto.addEmailDto (emailDto));
 
         return employeeDto;
     }
