@@ -27,6 +27,9 @@ public class Employee {
     @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Email> emails;
 
+    @OneToMany(mappedBy = "employee", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Address> addresses;
+
     public Long getId() {
         return id;
     }
@@ -57,6 +60,14 @@ public class Employee {
 
     public void setEmails(Set<Email> emails) {
         this.emails = emails;
+    }
+
+    public void setAddresses(Set<Address> addresses) {
+        this.addresses = addresses;
+    }
+
+    public Set<Address> getAddresses() {
+        return addresses;
     }
 
 }

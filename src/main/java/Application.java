@@ -1,4 +1,8 @@
+import callBack.Boss;
+import callBack.CallBackInterface;
+import callBack.Slaver;
 import common.Gender;
+import dto.AddressDto;
 import dto.EmailDto;
 import dto.EmployeeDto;
 import dto.MovieDto;
@@ -12,6 +16,46 @@ import java.util.Arrays;
 
 public class Application {
     public static void main(String[] args) {
+
+        /**
+         * Just a small test case for the callBack
+         * https://www.zhihu.com/question/25504849
+         */
+        // 1. traditional way to pass class as param
+        CallBackInterface boss = new Boss ();
+        Slaver slaver = new Slaver (boss);
+        slaver.dailyWork ();
+
+        // 2. anonymous class
+        slaver = new Slaver (new CallBackInterface () {
+            @Override
+            public void execute() {
+                System.out.println (">>>>>>> Rest a while. ");
+            }
+        });
+        slaver.dailyWork ();
+
+        // 3. Lambda Java8
+        CallBackInterface agent = () -> System.out.println (">>>>>>> I will give you a new job. ");
+        slaver = new Slaver (agent);
+        slaver.dailyWork ();
+
+        /**
+         *
+         */
+        Thread thread = new Thread (new Runnable () {
+            @Override
+            public void run() {
+                System.out.println (">>>>>>> This is a thread. ");
+            }
+        });
+
+        thread.start ();
+
+        thread = new Thread (() -> System.out.println (">>>>>>> use lambda to print. "));
+        thread.start ();
+
+
 
         // Mock the UI
         MovieService movieService = new MovieService();
@@ -142,65 +186,77 @@ public class Application {
         employeeService.saveEmployee (employeeDto);
 
         /**
-         * Employee FetchType.LAZY.
+         * Employee Address Eager & Email Lazy
          */
-        Employee employeeFromPSWithEmail = employeeService.detachEmployeeByIdThenReturnDetachedEmployee (1L);
-        System.out.println ("  >>>>>>>>> this employee from persistence context which was saved by employeeService.saveEmployee method, so with email. ");
-        employeeFromPSWithEmail.getEmails ().stream ()
-                .forEach (email -> System.out.println ("    emails: " + email.getEmailAddress ()));
+        employeeService.detachEmployeeById (1L);
+//        Employee employeeFetchedFromDB = employeeService.findEmployeeById (1L);
+//        employeeFetchedFromDB.getEmails ().stream ()
+//                .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
 
-        System.out.println ("  >>>>>>>>> this employee is already not in the persistence context which has been detached. ");
-        System.out.println ("    >>>>>>>>> if using em.find and detach again, the lazy proxy will be cutted from DB. " +
-                "Proxy session close issue when fetching email. ");
-        Employee employeeFromDBWithoutEmail = employeeService.detachEmployeeByIdThenReturnDetachedEmployee (1L);
-        try {
-            employeeFromDBWithoutEmail.getEmails ().stream ()
-                    .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
-        }catch (Exception ex) {
-            System.out.println ("    ---- Exception: " + ex.getMessage ());
-        }
-
-        System.out.println ("    >>>>>>>>> if using em.find, it will fetch from DB invoking the lazy mode. Only fetch email when needed. ");
-        Employee employeeFromDB = employeeService.findEmployeeById (1L);
-        employeeFromDB.getEmails ().stream ()
+        Employee employeeFetchedFromDB = employeeService.findEmployeeByIdWithJPQL(1L);
+        employeeFetchedFromDB.getEmails ().stream ()
                 .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
 
-        System.out.println ("    >>>>>>>>> if use JPQL left join fetch, directly get the emails  ");
-        Employee employeeWithEmailByFetch = employeeService.findEmployeeByIdWithJPQL (1L);
-        employeeWithEmailByFetch.getEmails ().stream ()
-                .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
-
-        /**
-         * Cascade Action(Update Owning Table)
-         */
-        EmployeeDto savedEmployeeDto = employeeService.saveEmployeeReturnAttachedEmployeeDto (employeeDto);
-        savedEmployeeDto.setEmployeeName ("Naruto");
-        savedEmployeeDto.getEmailsDto ().stream ().forEach (emailDto ->
-            emailDto.setEmailAddress (emailDto.getEmailAddress () + "_*")
-        );
-        employeeService.updateEmployee (savedEmployeeDto);
-
-
-        /**
-         * Cascade Action(Delete Inverse Table)
-         *
-         *  1. em.remove
-         *  2. JPQL
-         *
-         *  ->  Three common method to delete
-         *          https://www.codejava.net/frameworks/hibernate/hibernate-basics-3-ways-to-delete-an-entity-from-the-datastore
-         *  ->  @ManyToMany should take care to use em.remove
-         *          https://thoughts-on-java.org/avoid-cascadetype-delete-many-assocations/
-         *
-         *      Query query1 = em.createQuery("delete Email e where e.id > :id");
-         *      query1.setParameter("id", 5L);
-         *      query1.executeUpdate();
-         *
-         *      Query query2 = em.createQuery("delete Employee e where e.id=:id");
-         *      query2.setParameter("id", id);
-         *      query2.executeUpdate();
-         */
-        employeeService.deleteEmployee (5L);
+//        /**
+//         * Employee FetchType.LAZY.
+//         */
+//        Employee employeeFromPSWithEmail = employeeService.detachEmployeeByIdThenReturnDetachedEmployee (1L);
+//        System.out.println ("  >>>>>>>>> this employee from persistence context which was saved by employeeService.saveEmployee method, so with email. ");
+//        employeeFromPSWithEmail.getEmails ().stream ()
+//                .forEach (email -> System.out.println ("    emails: " + email.getEmailAddress ()));
+//
+//        System.out.println ("  >>>>>>>>> this employee is already not in the persistence context which has been detached. ");
+//        System.out.println ("    >>>>>>>>> if using em.find and detach again, the lazy proxy will be cutted from DB. " +
+//                "Proxy session close issue when fetching email. ");
+//        Employee employeeFromDBWithoutEmail = employeeService.detachEmployeeByIdThenReturnDetachedEmployee (1L);
+//        try {
+//            employeeFromDBWithoutEmail.getEmails ().stream ()
+//                    .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
+//        }catch (Exception ex) {
+//            System.out.println ("    ---- Exception: " + ex.getMessage ());
+//        }
+//
+//        System.out.println ("    >>>>>>>>> if using em.find, it will fetch from DB invoking the lazy mode. Only fetch email when needed. ");
+//        Employee employeeFromDB = employeeService.findEmployeeById (1L);
+//        employeeFromDB.getEmails ().stream ()
+//                .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
+//
+//        System.out.println ("    >>>>>>>>> if use JPQL left join fetch, directly get the emails  ");
+//        Employee employeeWithEmailByFetch = employeeService.findEmployeeByIdWithJPQL (1L);
+//        employeeWithEmailByFetch.getEmails ().stream ()
+//                .forEach (email -> System.out.println ("emails: " + email.getEmailAddress ()));
+//
+//        /**
+//         * Cascade Action(Update Owning Table)
+//         */
+//        EmployeeDto savedEmployeeDto = employeeService.saveEmployeeReturnAttachedEmployeeDto (employeeDto);
+//        savedEmployeeDto.setEmployeeName ("Naruto");
+//        savedEmployeeDto.getEmailsDto ().stream ().forEach (emailDto ->
+//            emailDto.setEmailAddress (emailDto.getEmailAddress () + "_*")
+//        );
+//        employeeService.updateEmployee (savedEmployeeDto);
+//
+//
+//        /**
+//         * Cascade Action(Delete Inverse Table)
+//         *
+//         *  1. em.remove
+//         *  2. JPQL
+//         *
+//         *  ->  Three common method to delete
+//         *          https://www.codejava.net/frameworks/hibernate/hibernate-basics-3-ways-to-delete-an-entity-from-the-datastore
+//         *  ->  @ManyToMany should take care to use em.remove
+//         *          https://thoughts-on-java.org/avoid-cascadetype-delete-many-assocations/
+//         *
+//         *      Query query1 = em.createQuery("delete Email e where e.id > :id");
+//         *      query1.setParameter("id", 5L);
+//         *      query1.executeUpdate();
+//         *
+//         *      Query query2 = em.createQuery("delete Employee e where e.id=:id");
+//         *      query2.setParameter("id", id);
+//         *      query2.executeUpdate();
+//         */
+//        //employeeService.deleteEmployee (5L);
 
 
 
@@ -329,8 +385,17 @@ public class Application {
         EmailDto yahooEmailDto = new EmailDto ();
         yahooEmailDto.setEmailAddress ("zldwdgm@yahoo.co.jp");
 
+        AddressDto northShore = new AddressDto ();
+        northShore.setAddress ("North Shore, Auckland");
+
+        AddressDto edenTerrace = new AddressDto ();
+        edenTerrace.setAddress ("Eden Terrace, Auckland");
+
         Arrays.asList (gmailEmailDto, qqEmailDto, yahooEmailDto)
                 .stream ().forEach (emailDto -> employeeDto.addEmailDto (emailDto));
+
+        Arrays.asList (northShore, edenTerrace)
+                .stream ().forEach (addressDto -> employeeDto.addAddressDto (addressDto));
 
         return employeeDto;
     }

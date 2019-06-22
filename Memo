@@ -1,0 +1,68 @@
+From this link, it seems left join fetch is equal to eager
+https://vladmihalcea.com/hibernate-facts-the-importance-of-fetch-strategy/
+
+1. Address Eager & Email Lazy
+
+    select
+        employee0_.employee_id as employee1_2_0_,
+        employee0_.employee_name as employee2_2_0_,
+        employee0_.gender as gender3_2_0_,
+        addresses1_.employee_id as employee3_0_1_,
+        addresses1_.address_id as address_1_0_1_,
+        addresses1_.address_id as address_1_0_2_,
+        addresses1_.address as address2_0_2_,
+        addresses1_.employee_id as employee3_0_2_
+    from
+        EMPLOYEE employee0_
+    left outer join
+        ADDRESS addresses1_
+            on employee0_.employee_id=addresses1_.employee_id
+    where
+        employee0_.employee_id=?
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+when need to use email lazy, then fetch
+
+    select
+        emails0_.employee_id as employee3_1_0_,
+        emails0_.email_id as email_id1_1_0_,
+        emails0_.email_id as email_id1_1_1_,
+        emails0_.email_address as email_ad2_1_1_,
+        emails0_.employee_id as employee3_1_1_
+    from
+        EMAIL emails0_
+    where
+        emails0_.employee_id=?
+
+
+2. select * from employee left join fetch email, email is lazy but use fetch can be get the data directly
+
+Hibernate:
+    select
+        employee0_.employee_id as employee1_2_0_,
+        emails1_.email_id as email_id1_1_1_,
+        employee0_.employee_name as employee2_2_0_,
+        employee0_.gender as gender3_2_0_,
+        emails1_.email_address as email_ad2_1_1_,
+        emails1_.employee_id as employee3_1_1_,
+        emails1_.employee_id as employee3_1_0__,
+        emails1_.email_id as email_id1_1_0__
+    from
+        EMPLOYEE employee0_
+    left outer join
+        EMAIL emails1_
+            on employee0_.employee_id=emails1_.employee_id
+    where
+        employee0_.employee_id=?
+Hibernate:
+    select
+        addresses0_.employee_id as employee3_0_0_,
+        addresses0_.address_id as address_1_0_0_,
+        addresses0_.address_id as address_1_0_1_,
+        addresses0_.address as address2_0_1_,
+        addresses0_.employee_id as employee3_0_1_
+    from
+        ADDRESS addresses0_
+    where
+        addresses0_.employee_id=?

@@ -15,6 +15,8 @@ public class EmployeeDto {
 
     private Set<EmailDto> emailsDto;
 
+    private Set<AddressDto> addressesDto;
+
     public Long getId() {
         return id;
     }
@@ -49,9 +51,25 @@ public class EmployeeDto {
 
     public void addEmailDto(EmailDto emailDto) {
         if (CollectionUtils.isEmpty (this.emailsDto)) {
-            this.emailsDto = new HashSet ();
+            this.emailsDto = new HashSet<> ();
         }
         this.emailsDto.add(emailDto);
         emailDto.setEmployeeDto (this);
+    }
+
+    public void setAddressesDto(Set<AddressDto> addressesDto) {
+        this.addressesDto = addressesDto;
+    }
+
+    public Set<AddressDto> getAddressesDto() {
+        return addressesDto;
+    }
+
+    public void addAddressDto(AddressDto addressDto) {
+        if(CollectionUtils.isEmpty (addressesDto)) {
+            this.addressesDto = new HashSet<> ();
+        }
+        this.addressesDto.add (addressDto);
+        addressDto.setEmployeeDto (this);
     }
 }
